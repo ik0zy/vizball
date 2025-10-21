@@ -72,22 +72,11 @@ A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 20
 
 ### Running the Dashboard
 
-**Option 1: Using the run script (Linux/Mac):**
-```bash
-./run_dashboard.sh
-```
-
-**Option 2: Manual start:**
 ```bash
 # Activate venv first
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 
 # Run Streamlit
-streamlit run app.py
-```
-
-**Option 3: Without venv (if you installed globally):**
-```bash
 streamlit run app.py
 ```
 
