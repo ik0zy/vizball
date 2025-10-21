@@ -1,6 +1,6 @@
 # ⚽ FIFA Player Stats Dashboard
 
-A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 2015 to 2022, inspired by the [FIFA Dashboard](https://wimmerth.github.io/fifa-dashboard) project.
+A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 2015 to 2022.
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)
