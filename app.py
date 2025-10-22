@@ -227,7 +227,7 @@ def main():
     # Top Clubs by Value
     with row1_col1:
         st.subheader("Top 20 Clubs by Value")
-        club_value = df_year.groupby('club_name')['value_eur'].sum().sort_values(ascending=False).head(20)
+        club_value = df_year.groupby('club_name')['value_eur'].sum().sort_values(ascending=True).tail(20)
         club_value_df = pd.DataFrame({
             'Club': club_value.index,
             'Value': club_value.values / 1_000_000  # Convert to millions
@@ -382,7 +382,7 @@ def main():
     
     with col_stat1:
         st.subheader("Top 10 Leagues by Players")
-        league_counts = df_year['league_name'].value_counts().head(10)
+        league_counts = df_year['league_name'].value_counts().sort_values(ascending=True).tail(10)
         fig_leagues = px.bar(
             x=league_counts.values,
             y=league_counts.index,
@@ -392,12 +392,13 @@ def main():
             color_continuous_scale='Bluered'
         )
         fig_leagues.update_layout(
-            height=400,
+            height=500,
             showlegend=False,
             coloraxis_showscale=False,
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='white')
+            font=dict(color='white'),
+            margin=dict(l=20, r=20, t=40, b=40)
         )
         st.plotly_chart(fig_leagues, use_container_width=True)
     
@@ -412,11 +413,12 @@ def main():
                 hole=0.4
             )
             fig_workrate.update_layout(
-                height=400,
+                height=600,
                 showlegend=True,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='white')
+                font=dict(color='white'),
+                margin=dict(l=60, r=20, t=60, b=40)
             )
             st.plotly_chart(fig_workrate, use_container_width=True)
         else:
@@ -434,13 +436,14 @@ def main():
                 color_continuous_scale='Sunset'
             )
             fig_body.update_layout(
-                height=400,
+                height=500,
                 showlegend=False,
                 coloraxis_showscale=False,
                 xaxis_tickangle=-45,
                 paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
-                font=dict(color='white')
+                font=dict(color='white'),
+                margin=dict(l=20, r=20, t=40, b=80)
             )
             st.plotly_chart(fig_body, use_container_width=True)
         else:
