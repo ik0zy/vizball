@@ -27,10 +27,11 @@ A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 20
 - Interactive filtering and statistical insights
 - Trendline support
 
-### 📉 Player Evolution
+### � Player Analysis
 - Track player statistics across years (2015-2022)
 - Compare potential vs actual overall rating
-- Multi-player career comparison
+- Interactive attribute heatmaps with filtering
+- Position-specific attribute evolution
 - Year-by-year detailed breakdown
 
 ## 🚀 Quick Start

@@ -45,7 +45,7 @@ def main():
         
         ### Features
         - **Home**: Overview and top players
-        - **Player Evolution**: Track stats over time and analyze career progression
+        - **Player Analysis**: Track stats over time and analyze career progression
         
         ### Data
         Data from FIFA video game series (2015-2022)
@@ -57,7 +57,7 @@ def main():
     
     st.info("""
     This dashboard provides comprehensive analysis of FIFA player statistics from 2015 to 2022.
-    Navigate to the Player Evolution page to explore detailed player career progressions.
+    Navigate to the Player Analysis page to explore detailed player career progressions.
     """)
     
     # Quick stats
@@ -80,12 +80,13 @@ def main():
     st.markdown("""
     ### How to use this dashboard:
     
-    **Player Evolution**
+    **Player Analysis**
     - Track how player stats changed over years (2015-2022)
     - See career progression with position-specific attributes
     - View detailed attribute history and percentile comparisons
     - Analyze overall vs potential ratings over time
     - Review year-by-year breakdowns
+    - Explore interactive attribute heatmaps
     """)
     
     st.markdown("---")
