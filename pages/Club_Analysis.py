@@ -10,11 +10,20 @@ import plotly.express as px
 import sys
 from pathlib import Path
 import numpy as np
+import base64
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
 from utils.data_loader import load_fifa_data
+
+def get_image_base64(image_path):
+    """Convert image to base64 for HTML embedding"""
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return ""
 
 st.set_page_config(page_title="Club Analysis", page_icon="🏟️", layout="wide")
 
@@ -165,16 +174,132 @@ def calculate_team_rating(best_11):
         return round(np.mean(ratings), 1)
     return 0
 
+def create_html_formation(best_11):
+    """
+    Create a visual formation using HTML/CSS with player images
+    """
+    # Helper function to render a player card
+    def render_player(player, pos_label):
+        if not player:
+            return ""
+        
+        # Get player image
+        player_img = ""
+        if 'player_face_url' in player and pd.notna(player.get('player_face_url')):
+            player_face_url = player['player_face_url']
+            if str(player_face_url).startswith('http'):
+                try:
+                    url_parts = player_face_url.split('/')
+                    local_filename = f"{url_parts[-3]}_{url_parts[-2]}_{url_parts[-1]}"
+                    local_path = Path("player_images") / local_filename
+                    
+                    if local_path.exists():
+                        img_base64 = get_image_base64(str(local_path))
+                        player_img = f'<img src="data:image/png;base64,{img_base64}" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; margin-bottom: 8px;">'
+                except:
+                    pass
+        
+        # Fallback to rating circle if no image
+        if not player_img:
+            player_img = f'''
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: #1e3c72; 
+                     border: 3px solid white; display: flex; align-items: center; justify-content: center; 
+                     margin-bottom: 8px; font-size: 24px; font-weight: bold; color: white;">
+                    {int(player['overall'])}
+                </div>
+            '''
+        
+        return f'''
+            <div style="text-align: center; margin: 10px;">
+                {player_img}
+                <div style="color: white; font-weight: bold; font-size: 14px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                    {player['short_name']}
+                </div>
+                <div style="color: #FFD700; font-weight: bold; font-size: 16px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                    {int(player['overall'])}
+                </div>
+                <div style="color: #ccc; font-size: 11px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                    {pos_label}
+                </div>
+            </div>
+        '''
+    
+    # Render formation in rows
+    formation_html = '''
+        <div style="background: linear-gradient(180deg, #2d5016 0%, #1a3009 100%); 
+             border: 3px solid white; border-radius: 15px; padding: 30px 20px; 
+             box-shadow: 0 8px 16px rgba(0,0,0,0.3);">
+    '''
+    
+    # Forwards row
+    forwards = []
+    if best_11.get('LW'):
+        forwards.append(render_player(best_11['LW'], 'LW'))
+    if best_11.get('ST'):
+        forwards.append(render_player(best_11['ST'], 'ST'))
+    if best_11.get('RW'):
+        forwards.append(render_player(best_11['RW'], 'RW'))
+    
+    formation_html += f'''
+        <div style="display: flex; justify-content: space-around; margin-bottom: 40px;">
+            {''.join(forwards)}
+        </div>
+    '''
+    
+    # Midfielders row
+    midfielders = []
+    if best_11.get('CM') and isinstance(best_11['CM'], list):
+        for i, cm in enumerate(best_11['CM']):
+            if cm:
+                midfielders.append(render_player(cm, 'CM'))
+    
+    formation_html += f'''
+        <div style="display: flex; justify-content: space-around; margin-bottom: 40px;">
+            {''.join(midfielders)}
+        </div>
+    '''
+    
+    # Defenders row
+    defenders = []
+    if best_11.get('LB'):
+        defenders.append(render_player(best_11['LB'], 'LB'))
+    if best_11.get('CB') and isinstance(best_11['CB'], list):
+        for i, cb in enumerate(best_11['CB']):
+            if cb:
+                defenders.append(render_player(cb, 'CB'))
+    if best_11.get('RB'):
+        defenders.append(render_player(best_11['RB'], 'RB'))
+    
+    formation_html += f'''
+        <div style="display: flex; justify-content: space-around; margin-bottom: 40px;">
+            {''.join(defenders)}
+        </div>
+    '''
+    
+    # Goalkeeper row
+    if best_11.get('GK'):
+        formation_html += f'''
+            <div style="display: flex; justify-content: center;">
+                {render_player(best_11['GK'], 'GK')}
+            </div>
+        '''
+    
+    formation_html += '</div>'
+    
+    # Use st.components.v1.html() for reliable HTML rendering
+    import streamlit.components.v1 as components
+    components.html(formation_html, height=850)
+
 def create_football_field_formation(best_11):
     """
-    Create a visual football field with players positioned in 4-3-3 formation
+    Create a visual football field with players positioned in 4-3-3 formation (vertical layout)
     """
     fig = go.Figure()
     
-    # Draw field background
+    # Draw field background (vertical orientation - taller than wide)
     fig.add_shape(
         type="rect",
-        x0=0, y0=0, x1=100, y1=100,
+        x0=0, y0=0, x1=68, y1=105,
         fillcolor="#2d5016",
         line=dict(color="white", width=3)
     )
@@ -182,37 +307,46 @@ def create_football_field_formation(best_11):
     # Draw center circle
     fig.add_shape(
         type="circle",
-        x0=45, y0=45, x1=55, y1=55,
+        x0=29, y0=47.5, x1=39, y1=57.5,
         line=dict(color="white", width=2),
         fillcolor="rgba(0,0,0,0)"
     )
     
-    # Draw center line
+    # Draw center line (horizontal when field is vertical)
     fig.add_shape(
         type="line",
-        x0=0, y0=50, x1=100, y1=50,
+        x0=0, y0=52.5, x1=68, y1=52.5,
         line=dict(color="white", width=2)
     )
     
     # Draw penalty boxes
-    fig.add_shape(type="rect", x0=0, y0=30, x1=15, y1=70, 
+    fig.add_shape(type="rect", x0=20, y0=0, x1=48, y1=16.5, 
                   line=dict(color="white", width=2), fillcolor="rgba(0,0,0,0)")
-    fig.add_shape(type="rect", x0=85, y0=30, x1=100, y1=70,
+    fig.add_shape(type="rect", x0=20, y0=88.5, x1=48, y1=105,
                   line=dict(color="white", width=2), fillcolor="rgba(0,0,0,0)")
     
-    # Position coordinates for 4-3-3 formation (x, y)
+    # Draw goal boxes
+    fig.add_shape(type="rect", x0=27, y0=0, x1=41, y1=5.5, 
+                  line=dict(color="white", width=2), fillcolor="rgba(0,0,0,0)")
+    fig.add_shape(type="rect", x0=27, y0=99.5, x1=41, y1=105,
+                  line=dict(color="white", width=2), fillcolor="rgba(0,0,0,0)")
+    
+    # Position coordinates for 4-3-3 formation (vertical: y increases bottom to top)
     positions = {
-        'GK': (8, 50),
-        'LB': (25, 15),
-        'CB': [(25, 40), (25, 60)],  # Two center backs
-        'RB': (25, 85),
-        'CM': [(50, 30), (50, 50), (50, 70)],  # Three midfielders
-        'LW': (75, 15),
-        'ST': (75, 50),
-        'RW': (75, 85)
+        'GK': (34, 8),
+        'LB': (12, 25),
+        'CB': [(25, 25), (43, 25)],  # Two center backs
+        'RB': (56, 25),
+        'CM': [(18, 52), (34, 52), (50, 52)],  # Three midfielders
+        'LW': (12, 85),
+        'ST': (34, 85),
+        'RW': (56, 85)
     }
     
-    # Add players to field
+    # Collect layout images
+    layout_images = []
+    
+    # Add players to field with images
     for pos, coords in positions.items():
         player_data = best_11.get(pos)
         
@@ -223,56 +357,102 @@ def create_football_field_formation(best_11):
                     if i < len(player_data) and player_data[i]:
                         player = player_data[i]
                         x, y = coord
-                        
-                        # Add player marker
-                        fig.add_trace(go.Scatter(
-                            x=[x], y=[y],
-                            mode='markers+text',
-                            marker=dict(size=40, color='#1e3c72', 
-                                       line=dict(color='white', width=3)),
-                            text=f"{player['short_name']}<br>{int(player['overall'])}",
-                            textposition="middle center",
-                            textfont=dict(color='white', size=10, family='Arial Black'),
-                            hovertemplate=f"<b>{player['short_name']}</b><br>" +
-                                        f"Position: {pos}<br>" +
-                                        f"Overall: {int(player['overall'])}<br>" +
-                                        f"Age: {int(player.get('age', 0))}<extra></extra>",
-                            showlegend=False
-                        ))
+                        add_player_to_field(fig, player, x, y, pos, layout_images)
         else:
             # Single player
             if player_data:
                 x, y = coords
-                
-                # Add player marker
-                fig.add_trace(go.Scatter(
-                    x=[x], y=[y],
-                    mode='markers+text',
-                    marker=dict(size=40, color='#1e3c72',
-                               line=dict(color='white', width=3)),
-                    text=f"{player_data['short_name']}<br>{int(player_data['overall'])}",
-                    textposition="middle center",
-                    textfont=dict(color='white', size=10, family='Arial Black'),
-                    hovertemplate=f"<b>{player_data['short_name']}</b><br>" +
-                                f"Position: {pos}<br>" +
-                                f"Overall: {int(player_data['overall'])}<br>" +
-                                f"Age: {int(player_data.get('age', 0))}<extra></extra>",
-                    showlegend=False
-                ))
+                add_player_to_field(fig, player_data, x, y, pos, layout_images)
     
-    # Update layout
+    # Update layout with images
     fig.update_layout(
         title="Best 11 - 4-3-3 Formation",
-        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False, range=[-5, 105]),
-        yaxis=dict(showgrid=False, showticklabels=False, zeroline=False, range=[-5, 105]),
+        xaxis=dict(showgrid=False, showticklabels=False, zeroline=False, range=[-2, 70]),
+        yaxis=dict(showgrid=False, showticklabels=False, zeroline=False, range=[-2, 107]),
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        height=600,
+        height=700,
+        width=450,
         hovermode='closest',
-        font=dict(color='white')
+        font=dict(color='white'),
+        images=layout_images if layout_images else None
     )
     
     return fig
+
+def add_player_to_field(fig, player, x, y, pos, layout_images):
+    """Add a player marker with image to the field"""
+    # Try to get player image
+    player_image = None
+    
+    # Check if player is a Series or dict
+    if isinstance(player, pd.Series):
+        has_face_url = 'player_face_url' in player.index and pd.notna(player['player_face_url'])
+    else:
+        has_face_url = 'player_face_url' in player and pd.notna(player.get('player_face_url'))
+    
+    if has_face_url:
+        player_face_url = player['player_face_url']
+        if str(player_face_url).startswith('http'):
+            try:
+                url_parts = player_face_url.split('/')
+                local_filename = f"{url_parts[-3]}_{url_parts[-2]}_{url_parts[-1]}"
+                local_path = Path("player_images") / local_filename
+                
+                if local_path.exists():
+                    player_image = f"data:image/png;base64,{get_image_base64(str(local_path))}"
+            except Exception as e:
+                pass
+    
+    # Helper to get age value regardless of player type
+    age_value = player.get('age', 0) if isinstance(player, dict) else player.get('age', 0)
+    
+    # Add player image if available
+    if player_image:
+        layout_images.append(dict(
+            source=player_image,
+            xref="x", yref="y",
+            x=x, y=y,
+            sizex=7, sizey=7,
+            xanchor="center", yanchor="middle",
+            layer="above"
+        ))
+        # Add white background circle behind image
+        fig.add_trace(go.Scatter(
+            x=[x], y=[y],
+            mode='markers',
+            marker=dict(size=45, color='white',
+                       line=dict(color='#1e3c72', width=3)),
+            hoverinfo='skip',
+            showlegend=False
+        ))
+    else:
+        # No image - show blue circle with rating inside
+        fig.add_trace(go.Scatter(
+            x=[x], y=[y],
+            mode='markers+text',
+            marker=dict(size=45, color='#1e3c72',
+                       line=dict(color='white', width=3)),
+            text=str(int(player['overall'])),
+            textposition="middle center",
+            textfont=dict(color='white', size=12, family='Arial Black'),
+            hoverinfo='skip',
+            showlegend=False
+        ))
+    
+    # Add name and rating below
+    fig.add_trace(go.Scatter(
+        x=[x], y=[y-5],
+        mode='text',
+        text=f"<b>{player['short_name']}</b><br>{int(player['overall'])}",
+        textposition="middle center",
+        textfont=dict(color='white', size=9, family='Arial Black'),
+        hovertemplate=f"<b>{player['short_name']}</b><br>" +
+                    f"Position: {pos}<br>" +
+                    f"Overall: {int(player['overall'])}<br>" +
+                    f"Age: {int(age_value)}<extra></extra>",
+        showlegend=False
+    ))
 
 def create_squad_depth_chart(club_df):
     """
@@ -506,8 +686,8 @@ def main():
     st.markdown("---")
     st.subheader("⚽ Best 11 in 4-3-3 Formation")
     
-    field_fig = create_football_field_formation(best_11)
-    st.plotly_chart(field_fig, use_container_width=True)
+    # Create HTML formation display
+    create_html_formation(best_11)
     
     # Formation breakdown
     with st.expander("📋 Starting XI Details"):

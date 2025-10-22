@@ -10,12 +10,21 @@ import plotly.express as px
 import sys
 from pathlib import Path
 import numpy as np
+import base64
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
 from utils.data_loader import load_fifa_data, get_player_evolution
 from components.player_selector import player_search_selector, player_dropdown_selector
+
+def get_image_base64(image_path):
+    """Convert image to base64 for HTML embedding"""
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return ""
 
 st.set_page_config(page_title="Player Analysis", page_icon="📊", layout="wide")
 
@@ -398,15 +407,34 @@ def display_detailed_player_card(player_row, player_evolution):
     """
     latest_data = player_evolution.iloc[-1]
     
-    # Main card container
+    # Get player image path
+    player_image_html = ""
+    if 'player_face_url' in latest_data.index:
+        player_face_url = latest_data['player_face_url']
+        if pd.notna(player_face_url) and str(player_face_url).startswith('http'):
+            try:
+                url_parts = player_face_url.split('/')
+                local_filename = f"{url_parts[-3]}_{url_parts[-2]}_{url_parts[-1]}"
+                local_path = Path("player_images") / local_filename
+                
+                if local_path.exists():
+                    # Use local image in card
+                    player_image_html = f'<img src="data:image/png;base64,{get_image_base64(str(local_path))}" style="width: 150px; height: 150px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">'
+            except:
+                pass
+    
+    # Main card container with centered image
     st.markdown(f"""
         <div class="player-card">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 30px;">
                 <div style="flex: 1;">
                     <h1 style="margin: 0; font-size: 48px; font-weight: bold;">{latest_data['short_name']}</h1>
                     <h3 style="margin: 5px 0; opacity: 0.8;">{latest_data.get('club_name', 'Unknown Club')}</h3>
                 </div>
-                <div style="text-align: right;">
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    {player_image_html}
+                </div>
+                <div style="flex: 1; text-align: right;">
                     <h2 style="margin: 0; font-size: 36px; opacity: 0.8;">{latest_data.get('player_positions', 'N/A').split(',')[0].strip()}</h2>
                     <h3 style="margin: 5px 0; opacity: 0.8;">{latest_data.get('nationality_name', 'Unknown')}</h3>
                 </div>
