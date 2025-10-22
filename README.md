@@ -27,12 +27,20 @@ A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 20
 - Interactive filtering and statistical insights
 - Trendline support
 
-### � Player Analysis
+### 📊 Player Analysis
 - Track player statistics across years (2015-2022)
 - Compare potential vs actual overall rating
 - Interactive attribute heatmaps with filtering
 - Position-specific attribute evolution
 - Year-by-year detailed breakdown
+
+### 🏟️ Club Analysis
+- Visualize best 11 players in 4-3-3 formation on a football field
+- Calculate overall team rating from starting lineup
+- Analyze squad depth by position category
+- View age distribution and player value analysis
+- Identify players with highest growth potential
+- Compare top performers within the squad
 
 ## 🚀 Quick Start
 
