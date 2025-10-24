@@ -15,47 +15,22 @@ import base64
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
-from utils.data_loader import load_fifa_data, get_player_evolution
+from utils.data_loader import load_fifa_data, get_player_evolution, get_image_base64_cached
 from components.player_selector import player_search_selector, player_dropdown_selector
 
-def get_image_base64(image_path):
-    """Convert image to base64 for HTML embedding"""
-    try:
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    except:
-        return ""
+# Use cached version from data_loader
+get_image_base64 = get_image_base64_cached
 
 st.set_page_config(page_title="Player Analysis", page_icon="📊", layout="wide")
 
-# Custom CSS for better styling
+# Optimized CSS - minified
 st.markdown("""
-    <style>
-    .player-card {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 20px;
-        border-radius: 10px;
-        color: white;
-        margin-bottom: 20px;
-    }
-    .stat-bar {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 5px;
-        height: 20px;
-        margin: 5px 0;
-    }
-    .stat-fill {
-        height: 100%;
-        border-radius: 5px;
-        transition: width 0.3s ease;
-    }
-    .attribute-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
-    </style>
+<style>
+.player-card{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);padding:20px;border-radius:10px;color:white;margin-bottom:20px}
+.stat-bar{background-color:rgba(255,255,255,0.2);border-radius:5px;height:20px;margin:5px 0}
+.stat-fill{height:100%;border-radius:5px;transition:width 0.3s ease}
+.attribute-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+</style>
 """, unsafe_allow_html=True)
 
 def create_evolution_chart(player_data, attributes):
@@ -259,16 +234,15 @@ def create_attribute_history_chart(player_data, attribute, current_year):
     
     return fig
 
-def create_percentile_chart(df, player_row, attribute, current_year):
+@st.cache_data(ttl=3600)
+def create_percentile_chart(_df, player_row, attribute, current_year, position_category):
     """
-    Create percentile comparison chart showing player rank vs similar positions
+    Create percentile comparison chart showing player rank vs similar positions (cached)
     """
-    position_category = player_row['position_category']
-    
     # Filter for current year and same position
-    year_data = df[(df['year'] == current_year) & 
-                   (df['position_category'] == position_category) &
-                   (df[attribute].notna())]
+    year_data = _df[(_df['year'] == current_year) & 
+                   (_df['position_category'] == position_category) &
+                   (_df[attribute].notna())]
     
     if len(year_data) < 10:
         return None
@@ -658,30 +632,30 @@ def main():
                                         if attr in latest_data:
                                             value = int(latest_data[attr])
                                             
-                                            # Get historical values for sparkline
-                                            historical_values = player_evolution[attr].tolist()
-                                            
-                                            # Create expander for detailed view
+                                            # Create expander for detailed view (charts load only when expanded)
                                             with st.expander(f"**{label}**: {value}", expanded=False):
-                                                # Historical chart
+                                                # Historical chart - only render when expander is opened
                                                 history_fig = create_attribute_history_chart(
                                                     player_evolution, 
                                                     attr, 
                                                     latest_data['year']
                                                 )
                                                 st.plotly_chart(history_fig, use_container_width=True, 
-                                                              key=f"history_{attr}")
+                                                              key=f"history_{attr}",
+                                                              config={'displayModeBar': False})
                                                 
                                                 # Percentile comparison
                                                 percentile_fig = create_percentile_chart(
                                                     df, 
                                                     latest_data, 
                                                     attr, 
-                                                    latest_data['year']
+                                                    latest_data['year'],
+                                                    latest_data['position_category']
                                                 )
                                                 if percentile_fig:
                                                     st.plotly_chart(percentile_fig, use_container_width=True, 
-                                                                  key=f"percentile_{attr}")
+                                                                  key=f"percentile_{attr}",
+                                                                  config={'displayModeBar': False})
                                             
                                             # Progress bar
                                             st.progress(value / 100)
@@ -691,7 +665,7 @@ def main():
                 st.subheader("Overall vs Potential")
                 
                 potential_fig = create_potential_vs_actual_chart(player_evolution)
-                st.plotly_chart(potential_fig, use_container_width=True)
+                st.plotly_chart(potential_fig, use_container_width=True, config={'displayModeBar': False})
                 
                 # Main attributes evolution
                 st.markdown("---")
@@ -700,7 +674,7 @@ def main():
                 # Get position-specific attributes for the evolution chart
                 radar_attrs, radar_labels, _ = get_position_specific_stats(selected_player)
                 main_fig = create_evolution_chart(player_evolution, radar_attrs)
-                st.plotly_chart(main_fig, use_container_width=True)
+                st.plotly_chart(main_fig, use_container_width=True, config={'displayModeBar': False})
                 
                 # Evolution table
                 st.markdown("---")

@@ -63,9 +63,18 @@ def player_search_selector(df, key_suffix="", year_filter=True, position_filter=
     
     return filtered_df
 
+@st.cache_data(ttl=1800)
+def _create_display_options(_df):
+    """Cache display options creation for better performance"""
+    display_options = _df.apply(
+        lambda row: f"{row['short_name']} - {row.get('club_name', 'Unknown')} ({int(row['year'])}) - OVR: {int(row['overall'])}",
+        axis=1
+    ).tolist()
+    return display_options
+
 def player_dropdown_selector(df, label="Select Player", key_suffix="", default_index=0):
     """
-    Create a dropdown to select a specific player
+    Create a dropdown to select a specific player (optimized with caching)
     
     Args:
         df: DataFrame with player data
@@ -80,17 +89,8 @@ def player_dropdown_selector(df, label="Select Player", key_suffix="", default_i
         st.warning("No players found with current filters")
         return None
     
-    # Create display names (name - team - year)
-    display_options = df.apply(
-        lambda row: f"{row['short_name']} - {row.get('club_name', 'Unknown')} ({int(row['year'])})",
-        axis=1
-    ).tolist()
-    
-    # Add overall rating to display
-    display_options_with_rating = [
-        f"{opt} - OVR: {int(df.iloc[i]['overall'])}"
-        for i, opt in enumerate(display_options)
-    ]
+    # Use cached display options for better performance
+    display_options_with_rating = _create_display_options(df)
     
     selected_index = st.selectbox(
         label,

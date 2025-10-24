@@ -15,75 +15,40 @@ import base64
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
-from utils.data_loader import load_fifa_data
+from utils.data_loader import load_fifa_data, get_image_base64_cached
 
-def get_image_base64(image_path):
-    """Convert image to base64 for HTML embedding"""
-    try:
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    except:
-        return ""
+# Use cached version from data_loader
+get_image_base64 = get_image_base64_cached
 
 st.set_page_config(page_title="Club Analysis", page_icon="🏟️", layout="wide")
 
-# Custom CSS for football field and club styling
+# Optimized CSS - minified
 st.markdown("""
-    <style>
-    .club-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 30px;
-        border-radius: 15px;
-        color: white;
-        margin-bottom: 30px;
-        text-align: center;
-    }
-    .team-rating {
-        font-size: 4rem;
-        font-weight: bold;
-        color: #FFD700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-    .player-card-field {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        padding: 8px;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        border: 2px solid #1e3c72;
-    }
-    .player-name {
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #1e3c72;
-        margin: 2px 0;
-    }
-    .player-rating {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #FFD700;
-        background: #1e3c72;
-        border-radius: 5px;
-        padding: 2px 8px;
-    }
-    .position-label {
-        font-size: 0.7rem;
-        color: #666;
-    }
-    </style>
+<style>
+.club-header{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);padding:30px;border-radius:15px;color:white;margin-bottom:30px;text-align:center}
+.team-rating{font-size:4rem;font-weight:bold;color:#FFD700;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+.player-card-field{background:rgba(255,255,255,0.95);border-radius:10px;padding:8px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.2);border:2px solid #1e3c72}
+.player-name{font-size:0.9rem;font-weight:bold;color:#1e3c72;margin:2px 0}
+.player-rating{font-size:1.2rem;font-weight:bold;color:#FFD700;background:#1e3c72;border-radius:5px;padding:2px 8px}
+.position-label{font-size:0.7rem;color:#666}
+</style>
 """, unsafe_allow_html=True)
 
-def get_best_11_formation(club_df, formation="4-3-3"):
+@st.cache_data(ttl=1800)
+def get_best_11_formation(_club_df, club_name, year, formation="4-3-3"):
     """
-    Get the best 11 players for a club in specified formation
+    Get the best 11 players for a club in specified formation (cached for performance)
     
     Args:
-        club_df: DataFrame with club players
+        _club_df: DataFrame with club players
+        club_name: Club name for cache key
+        year: Year for cache key
         formation: Formation string (default "4-3-3")
     
     Returns:
         Dictionary with positions as keys and player data as values
     """
+    club_df = _club_df.copy()
     # Define position mappings for 4-3-3
     position_requirements = {
         'GK': 1,
@@ -646,8 +611,8 @@ def main():
         st.warning(f"No data found for {selected_club} in {selected_year}")
         return
     
-    # Get best 11 in 4-3-3 formation
-    best_11 = get_best_11_formation(club_df)
+    # Get best 11 in 4-3-3 formation (cached)
+    best_11 = get_best_11_formation(club_df, selected_club, selected_year)
     team_rating = calculate_team_rating(best_11)
     
     # Club header with team rating
@@ -725,15 +690,15 @@ def main():
         
         with col1:
             depth_fig = create_squad_depth_chart(club_df)
-            st.plotly_chart(depth_fig, use_container_width=True)
+            st.plotly_chart(depth_fig, use_container_width=True, config={'displayModeBar': False})
         
         with col2:
             age_fig = create_age_distribution(club_df)
-            st.plotly_chart(age_fig, use_container_width=True)
+            st.plotly_chart(age_fig, use_container_width=True, config={'displayModeBar': False})
     
     with tab2:
         value_fig = create_value_vs_rating_scatter(club_df)
-        st.plotly_chart(value_fig, use_container_width=True)
+        st.plotly_chart(value_fig, use_container_width=True, config={'displayModeBar': False})
         
         st.info("""
         **Bubble size** represents player age. Larger bubbles = older players.  
@@ -747,7 +712,7 @@ def main():
     
     with tab4:
         potential_fig = create_potential_vs_actual(club_df)
-        st.plotly_chart(potential_fig, use_container_width=True)
+        st.plotly_chart(potential_fig, use_container_width=True, config={'displayModeBar': False})
         
         st.info("""
         **Growth Potential** shows the gap between current overall and potential rating.  

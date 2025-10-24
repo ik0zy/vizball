@@ -1,0 +1,34 @@
+# Streamlit Configuration for Optimized Performance
+
+[server]
+# Enable faster data transfer
+enableCORS = false
+enableXsrfProtection = true
+
+# Optimize file watcher
+fileWatcherType = "auto"
+
+# Performance settings
+maxUploadSize = 200
+
+[browser]
+# Reduce unnecessary browser checks
+gatherUsageStats = false
+
+[runner]
+# Optimize runner performance
+magicEnabled = true
+fastReruns = true
+
+[client]
+# Optimize client-side performance
+showErrorDetails = false
+toolbarMode = "minimal"
+
+[theme]
+# Use default theme for best performance
+base = "dark"
+
+[logger]
+# Reduce logging overhead
+level = "error"

@@ -23,68 +23,23 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for better styling
+# Optimized CSS - consolidated and minified
 st.markdown("""
-    <style>
-    .main {
-        background-color: #0e1117;
-        padding-top: 2rem;
-    }
-    /* Fix metric card contrast */
-    .stMetric {
-        background-color: #1e2530 !important;
-        padding: 15px !important;
-        border-radius: 8px !important;
-        border: 2px solid #ff9800 !important;
-    }
-    .stMetric label {
-        color: #ffffff !important;
-        font-size: 14px !important;
-        font-weight: 600 !important;
-    }
-    .stMetric [data-testid="stMetricValue"] {
-        color: #ff9800 !important;
-        font-size: 28px !important;
-        font-weight: bold !important;
-    }
-    .stMetric [data-testid="stMetricDelta"] {
-        color: #4caf50 !important;
-    }
-    /* Header styling */
-    h1 {
-        color: #ffffff !important;
-        text-align: center;
-        font-weight: bold;
-        padding: 20px;
-        margin-top: 20px !important;
-        border: 3px solid #ff9800;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
-    }
-    h2 {
-        color: #ff9800 !important;
-    }
-    h3 {
-        color: #ffffff !important;
-    }
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background-color: #0e1117;
-    }
-    [data-testid="stSidebar"] .stMarkdown {
-        color: #ffffff;
-    }
-    /* Football field */
-    .football-field {
-        background-color: #2d5016;
-        border: 2px solid white;
-    }
-    /* Dataframe styling */
-    .dataframe {
-        color: #ffffff !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+<style>
+.main{background-color:#0e1117;padding-top:2rem}
+.stMetric{background-color:#1e2530!important;padding:15px!important;border-radius:8px!important;border:2px solid #ff9800!important}
+.stMetric label{color:#fff!important;font-size:14px!important;font-weight:600!important}
+.stMetric [data-testid="stMetricValue"]{color:#ff9800!important;font-size:28px!important;font-weight:bold!important}
+.stMetric [data-testid="stMetricDelta"]{color:#4caf50!important}
+h1{color:#fff!important;text-align:center;font-weight:bold;padding:20px;margin-top:20px!important;border:3px solid #ff9800;border-radius:10px;background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%)!important}
+h2{color:#ff9800!important}
+h3{color:#fff!important}
+[data-testid="stSidebar"]{background-color:#0e1117}
+[data-testid="stSidebar"] .stMarkdown{color:#fff}
+.football-field{background-color:#2d5016;border:2px solid white}
+.dataframe{color:#fff!important}
+</style>
+""", unsafe_allow_html=True)
 
 def main():
     # Load data
@@ -130,11 +85,15 @@ def main():
         # Filter data by selected year first
         df_year = df[df['year'] == selected_year].copy()
         
-        # Position filter
-        positions = df_year['player_positions'].str.split(',').explode().str.strip().unique()
+        # Position filter - optimized to avoid repeated split/explode
+        @st.cache_data(ttl=3600)
+        def get_unique_positions(_df):
+            return sorted([p for p in _df['player_positions'].str.split(',').explode().str.strip().unique() if pd.notna(p)])
+        
+        positions = get_unique_positions(df_year)
         selected_position = st.multiselect(
             "Select Position(s)",
-            options=sorted([p for p in positions if pd.notna(p)]),
+            options=positions,
             default=[]
         )
         
@@ -157,19 +116,18 @@ def main():
         # Apply filters button
         apply_filters = st.button("Apply Filters")
     
-    # Use filtered or unfiltered data
+    # Use filtered or unfiltered data with optimized operations
     if apply_filters:
+        # Build filter mask efficiently
+        mask = (df_year['overall'] >= min_overall) & (df_year['overall'] <= max_overall) & \
+               (df_year['age'] >= min_age) & (df_year['age'] <= max_age)
+        
         if selected_position:
-            df_year = df_year[df_year['player_positions'].str.contains('|'.join(selected_position), na=False)]
+            pos_pattern = '|'.join(selected_position)
+            mask &= df_year['player_positions'].str.contains(pos_pattern, na=False, regex=True)
         
-        df_year = df_year[
-            (df_year['overall'] >= min_overall) & 
-            (df_year['overall'] <= max_overall) &
-            (df_year['age'] >= min_age) & 
-            (df_year['age'] <= max_age)
-        ]
-        
-        st.sidebar.success(f"✓ Filtered: {len(df_year)} players")
+        df_year = df_year[mask]
+        st.sidebar.success(f"✓ Filtered: {len(df_year):,} players")
     else:
         # Filter data by selected year
         df_year = df[df['year'] == selected_year].copy()
@@ -224,10 +182,10 @@ def main():
     # Main content area
     row1_col1, row1_col2 = st.columns([1, 2])
     
-    # Top Clubs by Value
+    # Top Clubs by Value - optimized aggregation
     with row1_col1:
         st.subheader("Top 20 Clubs by Value")
-        club_value = df_year.groupby('club_name')['value_eur'].sum().sort_values(ascending=True).tail(20)
+        club_value = df_year.groupby('club_name', observed=True)['value_eur'].sum().nlargest(20).sort_values(ascending=True)
         club_value_df = pd.DataFrame({
             'Club': club_value.index,
             'Value': club_value.values / 1_000_000  # Convert to millions
@@ -250,7 +208,7 @@ def main():
             plot_bgcolor='rgba(0,0,0,0)',
             font=dict(color='white')
         )
-        st.plotly_chart(fig_clubs, use_container_width=True)
+        st.plotly_chart(fig_clubs, use_container_width=True, config={'displayModeBar': False})
     
     # Distribution charts
     with row1_col2:
@@ -273,7 +231,8 @@ def main():
                 plot_bgcolor='rgba(0,0,0,0)',
                 font=dict(color='white')
             )
-            st.plotly_chart(fig_overall, use_container_width=True)
+            # Use config to disable unnecessary features for better performance
+            st.plotly_chart(fig_overall, use_container_width=True, config={'displayModeBar': False})
         
         with col_hist2:
             st.subheader("Potential Distribution")
@@ -292,7 +251,7 @@ def main():
                 plot_bgcolor='rgba(0,0,0,0)',
                 font=dict(color='white')
             )
-            st.plotly_chart(fig_potential, use_container_width=True)
+            st.plotly_chart(fig_potential, use_container_width=True, config={'displayModeBar': False})
         
         # Preferred Foot
         st.subheader("Players by Preferred Foot")
@@ -312,7 +271,7 @@ def main():
             plot_bgcolor='rgba(0,0,0,0)',
             font=dict(color='white')
         )
-        st.plotly_chart(fig_foot, use_container_width=True)
+        st.plotly_chart(fig_foot, use_container_width=True, config={'displayModeBar': False})
     
     st.markdown("---")
     
@@ -340,7 +299,7 @@ def main():
             font=dict(color='white')
         )
         fig_age.update_traces(textinfo="label+value+percent parent")
-        st.plotly_chart(fig_age, use_container_width=True)
+        st.plotly_chart(fig_age, use_container_width=True, config={'displayModeBar': False})
     
     with row2_col2:
         st.subheader("Players Distribution by Nationality")
@@ -371,7 +330,7 @@ def main():
             plot_bgcolor='rgba(0,0,0,0)',
             font=dict(color='white')
         )
-        st.plotly_chart(fig_map, use_container_width=True)
+        st.plotly_chart(fig_map, use_container_width=True, config={'displayModeBar': False})
     
     st.markdown("---")
     
@@ -400,7 +359,7 @@ def main():
             font=dict(color='white'),
             margin=dict(l=20, r=20, t=40, b=40)
         )
-        st.plotly_chart(fig_leagues, use_container_width=True)
+        st.plotly_chart(fig_leagues, use_container_width=True, config={'displayModeBar': False})
     
     with col_stat2:
         st.subheader("Work Rate Distribution")
@@ -420,7 +379,7 @@ def main():
                 font=dict(color='white'),
                 margin=dict(l=60, r=20, t=60, b=40)
             )
-            st.plotly_chart(fig_workrate, use_container_width=True)
+            st.plotly_chart(fig_workrate, use_container_width=True, config={'displayModeBar': False})
         else:
             st.info("Work rate data not available for this year")
     
@@ -445,7 +404,7 @@ def main():
                 font=dict(color='white'),
                 margin=dict(l=20, r=20, t=40, b=80)
             )
-            st.plotly_chart(fig_body, use_container_width=True)
+            st.plotly_chart(fig_body, use_container_width=True, config={'displayModeBar': False})
         else:
             st.info("Body type data not available for this year")
     
