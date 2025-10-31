@@ -31,44 +31,77 @@ st.set_page_config(page_title="Club Analysis", page_icon="🏟️", layout="wide
 st.markdown("""
     <style>
     .club-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 30px;
-        border-radius: 15px;
+        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
+        padding: 35px;
+        border-radius: 20px;
         color: white;
-        margin-bottom: 30px;
+        margin-bottom: 35px;
         text-align: center;
+        box-shadow: 0 10px 20px rgba(44, 82, 130, 0.4);
     }
     .team-rating {
-        font-size: 4rem;
-        font-weight: bold;
-        color: #FFD700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        font-size: 4.5rem;
+        font-weight: 800;
+        color: #fbbf24;
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+        letter-spacing: -2px;
     }
     .player-card-field {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        padding: 8px;
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 12px;
+        padding: 10px;
         text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        border: 2px solid #1e3c72;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+        border: 2px solid #2c5282;
+        transition: all 0.3s ease;
+    }
+    .player-card-field:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.4);
     }
     .player-name {
-        font-size: 0.9rem;
-        font-weight: bold;
-        color: #1e3c72;
-        margin: 2px 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin: 4px 0;
     }
     .player-rating {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #FFD700;
-        background: #1e3c72;
-        border-radius: 5px;
-        padding: 2px 8px;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #ffffff;
+        background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
+        border-radius: 8px;
+        padding: 4px 10px;
+        display: inline-block;
     }
     .position-label {
-        font-size: 0.7rem;
-        color: #666;
+        font-size: 0.75rem;
+        color: #718096;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    h1 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        padding: 25px !important;
+        margin: 25px 0 !important;
+        border-radius: 16px !important;
+        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
+        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
+        text-align: center !important;
+    }
+    h2 {
+        color: #4299e1 !important;
+        font-weight: 700 !important;
+        margin: 30px 0 20px 0 !important;
+        padding-bottom: 10px !important;
+        border-bottom: 2px solid #2d3748 !important;
+    }
+    h3 {
+        color: #e2e8f0 !important;
+        font-weight: 600 !important;
+        margin: 20px 0 15px 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -601,7 +634,7 @@ def create_potential_vs_actual(club_df):
     return fig
 
 def main():
-    st.title("🏟️ Club Analysis - Squad Overview")
+    st.title("Club Analysis - Squad Overview")
     
     # Load data
     with st.spinner("Loading FIFA data..."):
@@ -653,7 +686,7 @@ def main():
     # Club header with team rating
     st.markdown(f"""
         <div class="club-header">
-            <h1>🏆 {selected_club}</h1>
+            <h1>{selected_club}</h1>
             <p style="font-size: 1.2rem; margin: 10px 0;">Season {selected_year}</p>
             <div class="team-rating">{team_rating}</div>
             <p style="font-size: 0.9rem; margin-top: 5px;">Team Rating (Best 11)</p>
@@ -684,13 +717,13 @@ def main():
     
     # Football field with formation
     st.markdown("---")
-    st.subheader("⚽ Best 11 in 4-3-3 Formation")
+    st.subheader("Best 11 in 4-3-3 Formation")
     
     # Create HTML formation display
     create_html_formation(best_11)
     
     # Formation breakdown
-    with st.expander("📋 Starting XI Details"):
+    with st.expander("Starting XI Details"):
         cols = st.columns(3)
         col_idx = 0
         
@@ -716,7 +749,7 @@ def main():
     
     # Squad analysis visualizations
     st.markdown("---")
-    st.subheader("📊 Squad Analysis")
+    st.subheader("Squad Analysis")
     
     tab1, tab2, tab3, tab4 = st.tabs(["Squad Depth", "Age & Value", "Top Players", "Potential"])
     
@@ -756,7 +789,7 @@ def main():
     
     # Squad statistics summary
     st.markdown("---")
-    st.subheader("📈 Squad Statistics Summary")
+    st.subheader("Squad Statistics Summary")
     
     col1, col2 = st.columns(2)
     

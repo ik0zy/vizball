@@ -18,12 +18,12 @@ from utils.data_loader import load_fifa_data
 # Page configuration
 st.set_page_config(
     page_title="FIFA Player Stats Dashboard",
-    page_icon="⚽",
+    page_icon="🔷",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for better styling
+    # Custom CSS for better styling
 st.markdown("""
     <style>
     .main {
@@ -33,46 +33,72 @@ st.markdown("""
     /* Fix metric card contrast */
     .stMetric {
         background-color: #1e2530 !important;
-        padding: 15px !important;
-        border-radius: 8px !important;
-        border: 2px solid #ff9800 !important;
+        padding: 20px !important;
+        border-radius: 12px !important;
+        border: 1px solid #2d3748 !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    .stMetric:hover {
+        border-color: #4299e1 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 12px rgba(66, 153, 225, 0.2) !important;
     }
     .stMetric label {
-        color: #ffffff !important;
-        font-size: 14px !important;
+        color: #a0aec0 !important;
+        font-size: 13px !important;
         font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
     }
     .stMetric [data-testid="stMetricValue"] {
-        color: #ff9800 !important;
-        font-size: 28px !important;
-        font-weight: bold !important;
+        color: #4299e1 !important;
+        font-size: 32px !important;
+        font-weight: 700 !important;
     }
     .stMetric [data-testid="stMetricDelta"] {
-        color: #4caf50 !important;
+        color: #48bb78 !important;
     }
     /* Header styling */
     h1 {
         color: #ffffff !important;
         text-align: center;
-        font-weight: bold;
-        padding: 20px;
-        margin-top: 20px !important;
-        border: 3px solid #ff9800;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+        font-weight: 700 !important;
+        padding: 30px 20px !important;
+        margin: 30px 0 !important;
+        border: none !important;
+        border-radius: 16px !important;
+        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
+        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
+        font-size: 2.5rem !important;
+        letter-spacing: -0.5px !important;
     }
     h2 {
-        color: #ff9800 !important;
+        color: #4299e1 !important;
+        font-weight: 700 !important;
+        font-size: 1.75rem !important;
+        margin: 30px 0 20px 0 !important;
+        padding-bottom: 10px !important;
+        border-bottom: 2px solid #2d3748 !important;
     }
     h3 {
-        color: #ffffff !important;
+        color: #e2e8f0 !important;
+        font-weight: 600 !important;
+        font-size: 1.25rem !important;
+        margin: 20px 0 15px 0 !important;
     }
     /* Sidebar styling */
     [data-testid="stSidebar"] {
-        background-color: #0e1117;
+        background-color: #1a202c !important;
+        border-right: 1px solid #2d3748 !important;
     }
     [data-testid="stSidebar"] .stMarkdown {
-        color: #ffffff;
+        color: #e2e8f0 !important;
+    }
+    [data-testid="stSidebar"] h3 {
+        color: #4299e1 !important;
+        border-bottom: 2px solid #2d3748 !important;
+        padding-bottom: 10px !important;
     }
     /* Football field */
     .football-field {
@@ -81,7 +107,29 @@ st.markdown("""
     }
     /* Dataframe styling */
     .dataframe {
-        color: #ffffff !important;
+        color: #e2e8f0 !important;
+        background-color: #1a202c !important;
+    }
+    /* Button styling */
+    .stButton > button {
+        background-color: #2c5282 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        padding: 10px 24px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+    }
+    .stButton > button:hover {
+        background-color: #2b6cb0 !important;
+        box-shadow: 0 4px 12px rgba(44, 82, 130, 0.4) !important;
+        transform: translateY(-1px) !important;
+    }
+    /* Separator styling */
+    hr {
+        margin: 40px 0 !important;
+        border: none !important;
+        border-top: 1px solid #2d3748 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -124,7 +172,7 @@ def main():
         
         # Filters Section
         st.markdown("---")
-        st.header("🔍 Filters")
+        st.header("Filters")
         st.markdown("---")
         
         # Filter data by selected year first
@@ -175,7 +223,7 @@ def main():
         df_year = df[df['year'] == selected_year].copy()
     
     # Main content - Title
-    st.markdown(f"<h1>⚽ FIFA {selected_year} Players Analysis</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1>FIFA {selected_year} Players Analysis</h1>", unsafe_allow_html=True)
     
     # Top metrics row
     col1, col2, col3, col4 = st.columns(4)
@@ -376,7 +424,7 @@ def main():
     st.markdown("---")
     
     # Additional Statistics Section
-    st.header("📊 Additional Statistics")
+    st.header("Additional Statistics")
     
     col_stat1, col_stat2, col_stat3 = st.columns(3)
     
@@ -452,7 +500,7 @@ def main():
     st.markdown("---")
     
     # Top Players Table
-    st.subheader(f"🌟 Top 20 Players by Overall Rating ({selected_year})")
+    st.subheader(f"Top 20 Players by Overall Rating ({selected_year})")
     top_players = df_year.nlargest(20, 'overall')[
         ['short_name', 'overall', 'potential', 'age', 'club_name', 'nationality_name', 'value_eur', 'player_positions']
     ].copy()
@@ -464,7 +512,7 @@ def main():
     
     # Filtered Player Data (shown if filters applied)
     if apply_filters:
-        st.subheader("📋 Filtered Player Data")
+        st.subheader("Filtered Player Data")
         st.info(f"Showing top 50 players from {len(df_year):,} filtered results")
         
         filtered_display = df_year.nlargest(50, 'overall')[
@@ -488,10 +536,10 @@ def main():
     st.markdown("---")
     st.markdown(
         f"""
-        <div style='text-align: center; color: gray; padding: 20px;'>
-            <p>⚽ FIFA Player Stats Dashboard | Data from FIFA {selected_year}</p>
-            <p>Navigate using the sidebar to explore Player Analysis and Club Analysis pages</p>
-            <p>Total Players in {selected_year}: {len(df_year):,} | All Years (2015-2022): {len(df):,}</p>
+        <div style='text-align: center; color: #718096; padding: 20px; font-size: 14px;'>
+            <p style='margin: 10px 0;'><strong>FIFA Player Stats Dashboard</strong> | Data from FIFA {selected_year}</p>
+            <p style='margin: 10px 0;'>Navigate using the sidebar to explore Player Analysis and Club Analysis pages</p>
+            <p style='margin: 10px 0;'>Total Players in {selected_year}: <strong>{len(df_year):,}</strong> | All Years (2015-2022): <strong>{len(df):,}</strong></p>
         </div>
         """,
         unsafe_allow_html=True

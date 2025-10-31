@@ -32,28 +32,53 @@ st.set_page_config(page_title="Player Analysis", page_icon="📊", layout="wide"
 st.markdown("""
     <style>
     .player-card {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 20px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
+        padding: 25px;
+        border-radius: 16px;
         color: white;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3);
     }
     .stat-bar {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 5px;
-        height: 20px;
-        margin: 5px 0;
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        height: 24px;
+        margin: 8px 0;
+        overflow: hidden;
     }
     .stat-fill {
         height: 100%;
-        border-radius: 5px;
-        transition: width 0.3s ease;
+        border-radius: 8px;
+        transition: width 0.5s ease;
+        background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
     }
     .attribute-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    h1 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        padding: 25px !important;
+        margin: 25px 0 !important;
+        border-radius: 16px !important;
+        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
+        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
+        text-align: center !important;
+    }
+    h2 {
+        color: #4299e1 !important;
+        font-weight: 700 !important;
+        margin: 30px 0 20px 0 !important;
+        padding-bottom: 10px !important;
+        border-bottom: 2px solid #2d3748 !important;
+    }
+    h3 {
+        color: #e2e8f0 !important;
+        font-weight: 600 !important;
+        margin: 20px 0 15px 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -459,17 +484,11 @@ def display_detailed_player_card(player_row, player_evolution):
         # Get position-specific stats
         radar_attrs, radar_labels, key_stats_config = get_position_specific_stats(latest_data)
         
-        # Main overall rating with radar - wrapped in centered container
-        st.markdown("""
-            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-        """, unsafe_allow_html=True)
-        
+        # Main overall rating
         st.markdown(f"""
-            <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px; width: 100%; max-width: 400px;">
-                <div style="position: relative; display: inline-block;">
-                    <div style="font-size: 72px; font-weight: bold; color: white;">{int(latest_data['overall'])}</div>
-                    <div style="font-size: 18px; opacity: 0.7;">Overall</div>
-                </div>
+            <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 20px;">
+                <div style="font-size: 72px; font-weight: bold; color: white;">{int(latest_data['overall'])}</div>
+                <div style="font-size: 18px; opacity: 0.7;">Overall</div>
             </div>
         """, unsafe_allow_html=True)
         
@@ -477,9 +496,6 @@ def display_detailed_player_card(player_row, player_evolution):
         values = [latest_data.get(attr, 0) for attr in radar_attrs]
         values.append(values[0])
         labels_closed = radar_labels + [radar_labels[0]]
-        
-        # Wrapper for centering the chart
-        st.markdown('<div style="display: flex; justify-content: center; width: 100%;">', unsafe_allow_html=True)
         
         fig = go.Figure()
         fig.add_trace(go.Scatterpolar(
@@ -502,8 +518,6 @@ def display_detailed_player_card(player_row, player_evolution):
         )
         
         st.plotly_chart(fig, use_container_width=True, key="radar_chart", config={'displayModeBar': False})
-        
-        st.markdown('</div></div>', unsafe_allow_html=True)
     
     with col3:
         # Position-specific key stats
