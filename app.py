@@ -6,14 +6,8 @@ A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 20
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-import sys
-from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent))
-
 from utils.data_loader import load_fifa_data
+from utils.styles import apply_common_styles
 
 # Page configuration
 st.set_page_config(
@@ -23,116 +17,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-    # Custom CSS for better styling
-st.markdown("""
-    <style>
-    .main {
-        background-color: #0e1117;
-        padding-top: 2rem;
-    }
-    /* Fix metric card contrast */
-    .stMetric {
-        background-color: #1e2530 !important;
-        padding: 20px !important;
-        border-radius: 12px !important;
-        border: 1px solid #2d3748 !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
-    }
-    .stMetric:hover {
-        border-color: #4299e1 !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 12px rgba(66, 153, 225, 0.2) !important;
-    }
-    .stMetric label {
-        color: #a0aec0 !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-    }
-    .stMetric [data-testid="stMetricValue"] {
-        color: #4299e1 !important;
-        font-size: 32px !important;
-        font-weight: 700 !important;
-    }
-    .stMetric [data-testid="stMetricDelta"] {
-        color: #48bb78 !important;
-    }
-    /* Header styling */
-    h1 {
-        color: #ffffff !important;
-        text-align: center;
-        font-weight: 700 !important;
-        padding: 30px 20px !important;
-        margin: 30px 0 !important;
-        border: none !important;
-        border-radius: 16px !important;
-        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
-        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
-        font-size: 2.5rem !important;
-        letter-spacing: -0.5px !important;
-    }
-    h2 {
-        color: #4299e1 !important;
-        font-weight: 700 !important;
-        font-size: 1.75rem !important;
-        margin: 30px 0 20px 0 !important;
-        padding-bottom: 10px !important;
-        border-bottom: 2px solid #2d3748 !important;
-    }
-    h3 {
-        color: #e2e8f0 !important;
-        font-weight: 600 !important;
-        font-size: 1.25rem !important;
-        margin: 20px 0 15px 0 !important;
-    }
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background-color: #1a202c !important;
-        border-right: 1px solid #2d3748 !important;
-    }
-    [data-testid="stSidebar"] .stMarkdown {
-        color: #e2e8f0 !important;
-    }
-    [data-testid="stSidebar"] h3 {
-        color: #4299e1 !important;
-        border-bottom: 2px solid #2d3748 !important;
-        padding-bottom: 10px !important;
-    }
-    /* Football field */
-    .football-field {
-        background-color: #2d5016;
-        border: 2px solid white;
-    }
-    /* Dataframe styling */
-    .dataframe {
-        color: #e2e8f0 !important;
-        background-color: #1a202c !important;
-    }
-    /* Button styling */
-    .stButton > button {
-        background-color: #2c5282 !important;
-        color: white !important;
-        border-radius: 8px !important;
-        padding: 10px 24px !important;
-        font-weight: 600 !important;
-        border: none !important;
-        transition: all 0.3s ease !important;
-    }
-    .stButton > button:hover {
-        background-color: #2b6cb0 !important;
-        box-shadow: 0 4px 12px rgba(44, 82, 130, 0.4) !important;
-        transform: translateY(-1px) !important;
-    }
-    /* Separator styling */
-    hr {
-        margin: 40px 0 !important;
-        border: none !important;
-        border-top: 1px solid #2d3748 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# Apply common styles
+apply_common_styles()
 
 def main():
     # Load data
@@ -145,8 +31,6 @@ def main():
     
     # Sidebar with year selection
     with st.sidebar:
-        st.markdown("---")
-        
         # Year selector for landing page data
         available_years = sorted(df['year'].unique(), reverse=True)
         selected_year = st.selectbox(
@@ -156,24 +40,9 @@ def main():
             help="Choose a year to see statistics on the landing page"
         )
         
-        st.markdown("---")
-        st.markdown("""
-        ### About
-        This interactive dashboard analyzes FIFA player statistics from 2015 to 2022.
-        
-        ### Features
-        - **Home**: Overview and top players
-        - **Player Analysis**: Track stats over time and analyze career progression
-        - **Club Analysis**: Visualize best 11, squad depth, and team statistics
-        
-        ### Data
-        Data from FIFA video game series (2015-2022)
-        """)
-        
         # Filters Section
         st.markdown("---")
         st.header("Filters")
-        st.markdown("---")
         
         # Filter data by selected year first
         df_year = df[df['year'] == selected_year].copy()
@@ -223,7 +92,7 @@ def main():
         df_year = df[df['year'] == selected_year].copy()
     
     # Main content - Title
-    st.markdown(f"<h1>FIFA {selected_year} Players Analysis</h1>", unsafe_allow_html=True)
+    st.title(f"FIFA {selected_year} Players Analysis")
     
     # Top metrics row
     col1, col2, col3, col4 = st.columns(4)
@@ -246,8 +115,6 @@ def main():
         st.metric("Top Player By Wage", top_player_wage['short_name'])
         st.caption(f"Wage: €{top_player_wage['wage_eur']/1_000:.0f}K")
     
-    st.markdown("---")
-    
     # Second metrics row
     col5, col6, col7, col8 = st.columns(4)
     
@@ -266,8 +133,6 @@ def main():
     with col8:
         left_foot = len(df_year[df_year['preferred_foot'] == 'Left'])
         st.metric("Left Footed", f"{left_foot:,}")
-    
-    st.markdown("---")
     
     # Main content area
     row1_col1, row1_col2 = st.columns([1, 2])
@@ -361,8 +226,6 @@ def main():
             font=dict(color='white')
         )
         st.plotly_chart(fig_foot, use_container_width=True)
-    
-    st.markdown("---")
     
     # Row 2: Age Distribution and Position Categories
     row2_col1, row2_col2 = st.columns(2)
@@ -497,8 +360,6 @@ def main():
         else:
             st.info("Body type data not available for this year")
     
-    st.markdown("---")
-    
     # Top Players Table
     st.subheader(f"Top 20 Players by Overall Rating ({selected_year})")
     top_players = df_year.nlargest(20, 'overall')[
@@ -507,8 +368,6 @@ def main():
     top_players['value_eur'] = top_players['value_eur'].apply(lambda x: f"€{x/1_000_000:.1f}M" if pd.notna(x) else "N/A")
     top_players.columns = ['Player', 'Overall', 'Potential', 'Age', 'Club', 'Nationality', 'Value', 'Positions']
     st.dataframe(top_players, use_container_width=True, hide_index=True)
-    
-    st.markdown("---")
     
     # Filtered Player Data (shown if filters applied)
     if apply_filters:
@@ -529,21 +388,6 @@ def main():
         
         filtered_display.columns = ['Player', 'Overall', 'Potential', 'Age', 'Club', 'Nationality', 'Value', 'Wage', 'Positions']
         st.dataframe(filtered_display, use_container_width=True, hide_index=True)
-        
-        st.markdown("---")
-    
-    # Footer
-    st.markdown("---")
-    st.markdown(
-        f"""
-        <div style='text-align: center; color: #718096; padding: 20px; font-size: 14px;'>
-            <p style='margin: 10px 0;'><strong>FIFA Player Stats Dashboard</strong> | Data from FIFA {selected_year}</p>
-            <p style='margin: 10px 0;'>Navigate using the sidebar to explore Player Analysis and Club Analysis pages</p>
-            <p style='margin: 10px 0;'>Total Players in {selected_year}: <strong>{len(df_year):,}</strong> | All Years (2015-2022): <strong>{len(df):,}</strong></p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 if __name__ == "__main__":
     main()

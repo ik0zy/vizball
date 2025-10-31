@@ -7,16 +7,12 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-import sys
-from pathlib import Path
 import numpy as np
 import base64
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
-
+from pathlib import Path
 from utils.data_loader import load_fifa_data, get_player_evolution
 from components.player_selector import player_search_selector, player_dropdown_selector
+from utils.styles import apply_common_styles, apply_player_card_styles
 
 def get_image_base64(image_path):
     """Convert image to base64 for HTML embedding"""
@@ -28,60 +24,9 @@ def get_image_base64(image_path):
 
 st.set_page_config(page_title="Player Analysis", page_icon="📊", layout="wide")
 
-# Custom CSS for better styling
-st.markdown("""
-    <style>
-    .player-card {
-        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
-        padding: 25px;
-        border-radius: 16px;
-        color: white;
-        margin-bottom: 25px;
-        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3);
-    }
-    .stat-bar {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        height: 24px;
-        margin: 8px 0;
-        overflow: hidden;
-    }
-    .stat-fill {
-        height: 100%;
-        border-radius: 8px;
-        transition: width 0.5s ease;
-        background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
-    }
-    .attribute-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-    }
-    h1 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        padding: 25px !important;
-        margin: 25px 0 !important;
-        border-radius: 16px !important;
-        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
-        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
-        text-align: center !important;
-    }
-    h2 {
-        color: #4299e1 !important;
-        font-weight: 700 !important;
-        margin: 30px 0 20px 0 !important;
-        padding-bottom: 10px !important;
-        border-bottom: 2px solid #2d3748 !important;
-    }
-    h3 {
-        color: #e2e8f0 !important;
-        font-weight: 600 !important;
-        margin: 20px 0 15px 0 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Apply common styles
+apply_common_styles()
+apply_player_card_styles()
 
 def create_evolution_chart(player_data, attributes):
     """
@@ -532,7 +477,7 @@ def display_detailed_player_card(player_row, player_evolution):
                 st.metric(stat_label, "N/A")
 
 def main():
-    st.title("Player Analysis - Career Progression")
+    st.title("Player Analysis")
     
     # Load data
     with st.spinner("Loading FIFA data..."):
@@ -545,12 +490,7 @@ def main():
     # Filter to only 2022 data for player search
     df_2022 = df[df['year'] == 2022].copy()
     
-    st.markdown("""
-    Track how player statistics evolved over the years (2015-2022).
-    See career progression, potential vs actual performance.
-    """)
     
-    st.subheader("Single Player Career Analysis")
     
     # Player selection (using 2022 data only)
     filtered_df = player_search_selector(df_2022, key_suffix="evolution", year_filter=False)

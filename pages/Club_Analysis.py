@@ -7,15 +7,11 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-import sys
-from pathlib import Path
 import numpy as np
 import base64
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
-
+from pathlib import Path
 from utils.data_loader import load_fifa_data
+from utils.styles import apply_common_styles, apply_club_styles
 
 def get_image_base64(image_path):
     """Convert image to base64 for HTML embedding"""
@@ -27,84 +23,9 @@ def get_image_base64(image_path):
 
 st.set_page_config(page_title="Club Analysis", page_icon="🏟️", layout="wide")
 
-# Custom CSS for football field and club styling
-st.markdown("""
-    <style>
-    .club-header {
-        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%);
-        padding: 35px;
-        border-radius: 20px;
-        color: white;
-        margin-bottom: 35px;
-        text-align: center;
-        box-shadow: 0 10px 20px rgba(44, 82, 130, 0.4);
-    }
-    .team-rating {
-        font-size: 4.5rem;
-        font-weight: 800;
-        color: #fbbf24;
-        text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
-        letter-spacing: -2px;
-    }
-    .player-card-field {
-        background: rgba(255, 255, 255, 0.97);
-        border-radius: 12px;
-        padding: 10px;
-        text-align: center;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-        border: 2px solid #2c5282;
-        transition: all 0.3s ease;
-    }
-    .player-card-field:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.4);
-    }
-    .player-name {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1a202c;
-        margin: 4px 0;
-    }
-    .player-rating {
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: #ffffff;
-        background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
-        border-radius: 8px;
-        padding: 4px 10px;
-        display: inline-block;
-    }
-    .position-label {
-        font-size: 0.75rem;
-        color: #718096;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    h1 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        padding: 25px !important;
-        margin: 25px 0 !important;
-        border-radius: 16px !important;
-        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
-        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
-        text-align: center !important;
-    }
-    h2 {
-        color: #4299e1 !important;
-        font-weight: 700 !important;
-        margin: 30px 0 20px 0 !important;
-        padding-bottom: 10px !important;
-        border-bottom: 2px solid #2d3748 !important;
-    }
-    h3 {
-        color: #e2e8f0 !important;
-        font-weight: 600 !important;
-        margin: 20px 0 15px 0 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Apply common styles
+apply_common_styles()
+apply_club_styles()
 
 def get_best_11_formation(club_df, formation="4-3-3"):
     """
@@ -634,7 +555,7 @@ def create_potential_vs_actual(club_df):
     return fig
 
 def main():
-    st.title("Club Analysis - Squad Overview")
+    st.title("Club Analysis")
     
     # Load data
     with st.spinner("Loading FIFA data..."):
@@ -644,9 +565,6 @@ def main():
         st.error("Failed to load data. Please check the data file.")
         return
     
-    st.markdown("""
-    Analyze club squads, visualize the best 11 in formation, and explore team statistics.
-    """)
     
     # Year and club selection
     col1, col2 = st.columns([1, 2])
@@ -781,11 +699,6 @@ def main():
     with tab4:
         potential_fig = create_potential_vs_actual(club_df)
         st.plotly_chart(potential_fig, use_container_width=True)
-        
-        st.info("""
-        **Growth Potential** shows the gap between current overall and potential rating.  
-        These players have the most room for improvement and could be future stars!
-        """)
     
     # Squad statistics summary
     st.markdown("---")

@@ -6,7 +6,6 @@ Handles loading, caching, and preprocessing of FIFA player data
 import streamlit as st
 import pandas as pd
 import numpy as np
-from pathlib import Path
 
 @st.cache_data
 def load_fifa_data():
@@ -15,9 +14,7 @@ def load_fifa_data():
     Returns: pandas DataFrame with all player data
     """
     try:
-        # Try to load the main cleaned dataset
-        data_path = Path(__file__).parent.parent / "fifa_players_15_22_clean.csv"
-        df = pd.read_csv(data_path, low_memory=False)
+        df = pd.read_csv("fifa_players_15_22_clean.csv", low_memory=False)
         
         # Clean and preprocess
         df = preprocess_data(df)

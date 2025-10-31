@@ -7,47 +7,14 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import sys
-from pathlib import Path
 import numpy as np
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
-
 from utils.data_loader import load_fifa_data
+from utils.styles import apply_common_styles
 
 st.set_page_config(page_title="Scatter Analysis", page_icon="📊", layout="wide")
 
-# Custom CSS for better styling
-st.markdown("""
-    <style>
-    h1 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        padding: 25px !important;
-        margin: 25px 0 !important;
-        border-radius: 16px !important;
-        background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 50%, #3182ce 100%) !important;
-        box-shadow: 0 8px 16px rgba(44, 82, 130, 0.3) !important;
-        text-align: center !important;
-    }
-    h2 {
-        color: #4299e1 !important;
-        font-weight: 700 !important;
-        margin: 30px 0 20px 0 !important;
-        padding-bottom: 10px !important;
-        border-bottom: 2px solid #2d3748 !important;
-    }
-    h3 {
-        color: #e2e8f0 !important;
-        font-weight: 600 !important;
-        margin: 20px 0 15px 0 !important;
-    }
-    .stSelectbox > div > div {
-        background-color: #1a202c;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Apply common styles
+apply_common_styles()
 
 def get_numeric_columns():
     """Get list of numeric columns for plotting"""
@@ -82,12 +49,8 @@ def format_column_name(col_name):
     return col_name.replace('_', ' ').title()
 
 def main():
-    st.title("Scatter Analysis - Explore Player Attributes")
+    st.title("Scatter Analysis")
     
-    st.markdown("""
-        Explore relationships between different player attributes using interactive scatter plots.
-        Select any two numeric attributes and color-code by categorical variables to uncover patterns.
-    """)
     
     # Load data
     with st.spinner("Loading FIFA data..."):
