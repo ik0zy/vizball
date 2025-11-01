@@ -87,7 +87,7 @@ def update_progress():
 # Load data - only 2022
 print("Loading FIFA 2022 data...")
 df = pd.read_csv('fifa_players_15_22_clean.csv', low_memory=False)
-df_2022 = df[df['year'] == 2022]
+df_2022 = df[df['year'] == 2020]
 
 # Get unique player face URLs for 2022
 print("Finding unique player images for 2022...")
