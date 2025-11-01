@@ -8,14 +8,6 @@ Vizball provides a comprehensive platform for exploring and comparing FIFA playe
 
 ## Features
 
-### Field View
-
-Visualize players positioned on an interactive football field. Filter by position, overall rating, and year to see top players in each position category. Player markers are sized according to their rating for quick visual comparison.
-
-### Player Comparison
-
-Compare two players side-by-side with detailed radar charts showing their attributes. The comparison breaks down stats into categories including attacking, defending, movement, skills, and physical attributes.
-
 ### Scatter Analysis
 
 Explore relationships between different player attributes using customizable scatter plots. Choose from over 40 attributes for the X and Y axes, and apply color coding based on position, league, nationality, or any other attribute. The tool includes filtering options and trendline support.
@@ -77,5 +69,4 @@ The dashboard will open in your browser at `http://localhost:8501`.
 
 ## Dataset
 
-The application uses FIFA player data spanning 2015 to 2022. The dataset includes over 17,000 unique players with more than 40 attributes per player, covering basic statistics (overall rating, potential, age, value, wage), physical attributes (pace, strength, stamina), technical skills (passing, dribbling, shooting), mental attributes (vision, positioning, composure), defensive stats (marking, tackling, interceptions), and goalkeeper-specific metrics.
-
+The application uses FIFA player data spanning 2015 to 2022. The dataset includes over 17,000 unique players with more than 40 attributes per player.
