@@ -421,9 +421,9 @@ def display_detailed_player_card(player_row, player_evolution):
         st.metric("Age", int(latest_data.get('age', 0)))
         st.metric("Height", f"{latest_data.get('height_cm', 0):.0f} cm" if pd.notna(latest_data.get('height_cm')) else "N/A")
         st.metric("Weight", f"{latest_data.get('weight_kg', 0):.0f} kg" if pd.notna(latest_data.get('weight_kg')) else "N/A")
-        st.markdown(f"**Value:** €{latest_data.get('value_eur', 0):,.0f}")
-        st.markdown(f"**Wage:** €{latest_data.get('wage_eur', 0):,.0f}")
-        st.markdown(f"**Preferred Foot:** {latest_data.get('preferred_foot', 'N/A')}")
+        st.metric("Value", f"€{latest_data.get('value_eur', 0):,.0f}")
+        st.metric("Wage", f"€{latest_data.get('wage_eur', 0):,.0f}")
+        st.metric("Preferred Foot", latest_data.get('preferred_foot', 'N/A'))
     
     with col2:
         # Get position-specific stats
