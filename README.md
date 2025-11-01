@@ -1,48 +1,34 @@
-# ⚽ FIFA Player Stats Dashboard
+# Vizball
 
-A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 2015 to 2022.
+An interactive dashboard for analyzing FIFA player statistics from 2015 to 2022, built with Streamlit.
 
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+## Overview
 
-## 🎯 Features
+Vizball provides a comprehensive platform for exploring and comparing FIFA player data across multiple seasons. The dashboard offers various visualization tools to help you understand player performance, team composition, and statistical trends over time.
 
-### 📍 Field View
-- Visualize players positioned on an interactive football field
-- Filter by position, overall rating, and year
-- See top players in each position category
-- Interactive markers sized by player rating
+## Features
 
-### ⚖️ Player Comparison
-- Compare two players side-by-side
-- Detailed radar charts for attribute visualization
-- Category-specific breakdowns (Attacking, Defending, Movement, Skills, Physical)
-- Complete statistical comparison
+### Field View
 
-### 📈 Scatter Analysis
-- Explore relationships between different attributes
-- Customizable X/Y axes with 40+ attributes
-- Color coding by position, league, nationality, or any attribute
-- Interactive filtering and statistical insights
-- Trendline support
+Visualize players positioned on an interactive football field. Filter by position, overall rating, and year to see top players in each position category. Player markers are sized according to their rating for quick visual comparison.
 
-### 📊 Player Analysis
-- Track player statistics across years (2015-2022)
-- Compare potential vs actual overall rating
-- Interactive attribute heatmaps with filtering
-- Position-specific attribute evolution
-- Year-by-year detailed breakdown
+### Player Comparison
 
-### 🏟️ Club Analysis
-- Visualize best 11 players in 4-3-3 formation on a football field
-- Calculate overall team rating from starting lineup
-- Analyze squad depth by position category
-- View age distribution and player value analysis
-- Identify players with highest growth potential
-- Compare top performers within the squad
+Compare two players side-by-side with detailed radar charts showing their attributes. The comparison breaks down stats into categories including attacking, defending, movement, skills, and physical attributes.
 
-## 🚀 Quick Start
+### Scatter Analysis
+
+Explore relationships between different player attributes using customizable scatter plots. Choose from over 40 attributes for the X and Y axes, and apply color coding based on position, league, nationality, or any other attribute. The tool includes filtering options and trendline support.
+
+### Player Analysis
+
+Track individual player statistics across all available years. View potential versus actual overall rating, explore attribute evolution over time, and analyze position-specific performance through interactive heatmaps.
+
+### Club Analysis
+
+Examine team composition and strength by visualizing the best 11 players in a 4-3-3 formation. The analysis includes overall team rating calculations, squad depth by position, age distribution, player value analysis, and identification of high-potential players.
+
+## Getting Started
 
 ### Prerequisites
 
@@ -51,54 +37,45 @@ A comprehensive Streamlit dashboard for analyzing FIFA player statistics from 20
 
 ### Installation
 
-1. **Clone or navigate to the project directory:**
-   ```bash
-   cd /path/to/Vizball
-   ```
-
-2. **Create a virtual environment (recommended):**
-   ```bash
-   python3 -m venv venv
-   ```
-
-3. **Activate the virtual environment:**
-   ```bash
-   # On Linux/Mac:
-   source venv/bin/activate
-   
-   # On Windows:
-   venv\Scripts\activate
-   ```
-
-4. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Ensure your FIFA dataset is in place:**
-   - The dashboard expects `fifa_players_15_22_clean.csv` in the root directory
-   - You can also use the individual yearly datasets in the `fifa-22-complete-player-dataset/` folder
-
-### Running the Dashboard
+Clone or navigate to the project directory:
 
 ```bash
-# Activate venv first
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+cd /path/to/vizball
+```
 
-# Run Streamlit
+Create a virtual environment (recommended):
+
+```bash
+python -m venv venv
+```
+
+Activate the virtual environment:
+
+```bash
+# Windows
+venv\Scripts\activate
+
+# Linux/Mac
+source venv/bin/activate
+```
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Running the Application
+
+Ensure your virtual environment is activated, then run:
+
+```bash
 streamlit run app.py
 ```
 
-The dashboard will automatically open at `http://localhost:8501`
+The dashboard will open in your browser at `http://localhost:8501`.
 
-## 📊 Dataset
+## Dataset
 
-The dashboard uses FIFA player data from 2015 to 2022, containing:
-- **17,000+** unique players
-- **40+** attributes per player including:
-  - Basic stats (Overall, Potential, Age, Value, Wage)
-  - Physical attributes (Pace, Strength, Stamina)
-  - Technical skills (Passing, Dribbling, Shooting)
-  - Mental attributes (Vision, Positioning, Composure)
-  - Defensive stats (Marking, Tackling, Interceptions)
-  - Goalkeeper-specific attributes
+The application uses FIFA player data spanning 2015 to 2022. The dataset includes over 17,000 unique players with more than 40 attributes per player, covering basic statistics (overall rating, potential, age, value, wage), physical attributes (pace, strength, stamina), technical skills (passing, dribbling, shooting), mental attributes (vision, positioning, composure), defensive stats (marking, tackling, interceptions), and goalkeeper-specific metrics.
+
